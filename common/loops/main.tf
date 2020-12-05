@@ -82,3 +82,4 @@ resource "tines_agent" "submit_file_to_hybrid_analysis" {
     receiver_ids = [tines_agent.check_status_of_hybrid_file_scan.id]
     agent_options = jsonencode({"payload": {"environment_id": "110", "file": {"contents": "{{.explode_attachments.attachment.base64encodedcontents | base64_decode}}", "filename": "{{.explode_attachments.attachment.filename}}"}, "user-agent": "Falcon Sandbox"}, "url": "https://www.hybrid-analysis.com/api/v2/submit/file", "log_error_on_status": [], "headers": {"api-key": "{% credential Hybrid %}"}, "content_type": "data", "method": "post"})
 }
+
