@@ -1,3 +1,3 @@
 # Phishing Response Playbook
 
-![phishing](../../assets/playbboks_phishing.png)
+![phishing](../../assets/playbooks_phishing.png)
