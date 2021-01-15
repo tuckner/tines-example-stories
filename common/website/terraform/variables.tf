@@ -13,3 +13,7 @@ variable "tines_base_url" {
 variable "story_id" {
     type = number
 }
+
+variable "team_id" {
+    type = number
+}

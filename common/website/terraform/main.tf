@@ -21,6 +21,7 @@ resource "tines_global_resource" "html_template" {
   name = "html_template"
   value_type = "text"
   value = file("${path.module}/resources/index.html")
+  team_id = var.team_id
 }
 
 resource "tines_agent" "webhook" {

@@ -24,8 +24,9 @@ website/node_modules
 *.test
 *.iml
 *.tfvars
-
+personal/
 website/vendor
+*.lock.hcl
 
 # Test exclusions
 !command/test-fixtures/**/*.tfstate
