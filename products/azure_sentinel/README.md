@@ -6,4 +6,4 @@ A story which has three elements to it.
 2. Querying Log Analytics for logs in the environment and returning the results. Should be enabled for Sent to Story.
 3. Submitting Threat Indicators to Azure Sentinel as intelligence that can be used.
 
-![azure_sentinel](../../assets/products_azure_sentinel.png)
+![azure_sentinel](../../assets/product_azure_sentinel.png)
