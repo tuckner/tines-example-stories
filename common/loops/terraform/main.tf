@@ -53,16 +53,6 @@ resource "tines_agent" "hybrid_file_scan_complete" {
     agent_options = jsonencode({"rules": [{"path": "{{.check_status_of_hybrid_file_scan.body.state}}", "type": "regex", "value": "SUCCESS"}]})
 }
 
-resource "tines_agent" "hybrid_scan_not_in_progress_or_complete" {
-    name = "Hybrid scan not in progress or complete"
-    agent_type = "Agents::TriggerAgent"
-    story_id = var.story_id
-    keep_events_for = 0
-    source_ids = []
-    receiver_ids = []
-    agent_options = jsonencode({"rules": [{"path": "{{.check_status_of_hybrid_file_scan.body.state}}", "type": "!regex", "value": "SUCCESS"}, {"path": "{{.check_status_of_hybrid_file_scan.body.state}}", "type": "!regex", "value": "IN_PROGRESS"}]})
-}
-
 resource "tines_agent" "check_status_of_hybrid_file_scan" {
     name = "Check status of hybrid file scan"
     agent_type = "Agents::HTTPRequestAgent"
