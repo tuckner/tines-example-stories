@@ -1,5 +1,3 @@
-# test
-
 terraform {
     required_providers {
         tines = {
@@ -52,7 +50,7 @@ resource "tines_agent" "send_message_to_user_in_slack_to_confirm" {
     keep_events_for = 0
     source_ids = []
     receiver_ids = [tines_agent.delay_event_1_hour.id, tines_agent.catch_prompt_response.id]
-    agent_options = jsonencode({"content_type": "json", "headers": {"Authorization": "Bearer {{.CREDENTIAL.slack}}"}, "log_error_on_status": [], "method": "post", "payload": {"attachments": [{"blocks": [{"text": {"text": "{{.receive_alerts.body.message}}", "type": "mrkdwn"}, "type": "section"}, {"fields": [{"text": "*action:*{% line_break %}{{.suspicious_alert_webhook.user_message}}", "type": "mrkdwn"}], "type": "section"}, {"elements": [{"style": "primary", "text": {"emoji": true, "text": "This Was Me", "type": "plain_text"}, "type": "button", "url": "{% prompt true %}"}, {"style": "danger", "text": {"emoji": true, "text": "I don\u0027t recognize this", "type": "plain_text"}, "type": "button", "url": "{% prompt invalid %}"}], "type": "actions"}]}], "channel": "{{.search_user_by_email_in_slack.body.user.id}}"}, "url": "https://slack.com/api/chat.postMessage"})
+    agent_options = jsonencode({"content_type": "json", "headers": {"Authorization": "Bearer {{.CREDENTIAL.slack}}"}, "log_error_on_status": [], "method": "post", "payload": {"attachments": [{"blocks": [{"text": {"text": "{{.receive_alerts.body.message}}", "type": "mrkdwn"}, "type": "section"}, {"fields": [{"text": "*action:*\n{{.suspicious_alert_webhook.user_message}}", "type": "mrkdwn"}], "type": "section"}, {"elements": [{"style": "primary", "text": {"emoji": true, "text": "This Was Me", "type": "plain_text"}, "type": "button", "url": "{% prompt true %}"}, {"style": "danger", "text": {"emoji": true, "text": "I don\u0027t recognize this", "type": "plain_text"}, "type": "button", "url": "{% prompt invalid %}"}], "type": "actions"}]}], "channel": "{{.search_user_by_email_in_slack.body.user.id}}"}, "url": "https://slack.com/api/chat.postMessage"})
 }
 
 resource "tines_agent" "deduplicate_events" {
