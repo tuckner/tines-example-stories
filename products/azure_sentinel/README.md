@@ -1,3 +1,17 @@
+---
+title: Azure Sentinel
+date: "2020-10-19T23:40:32.169Z"
+template: "post"
+draft: false
+slug: "azure-sentinel"
+category: "products"
+tags:
+  - "azure"
+  - "sentinel"
+  - "siem"
+description: "Workflows for Azure Sentinel."
+---
+
 # Azure Sentinel
 
 A story which has three elements to it.
