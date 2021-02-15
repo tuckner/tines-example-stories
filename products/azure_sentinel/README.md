@@ -1,15 +1,14 @@
 ---
 title: Azure Sentinel
-date: "2020-10-19T23:40:32.169Z"
-template: "post"
-draft: false
-slug: "azure-sentinel"
+author: John Tuckner
+date: 2020-01-02
+hero: ./images/product_azure_sentinel.png 
+excerpt: Workflows for Azure Sentinel.
 category: "products"
 tags:
   - "azure"
   - "sentinel"
   - "siem"
-description: "Workflows for Azure Sentinel."
 ---
 
 # Azure Sentinel
@@ -20,4 +19,4 @@ A story which has three elements to it.
 2. Querying Log Analytics for logs in the environment and returning the results. Should be enabled for Sent to Story.
 3. Submitting Threat Indicators to Azure Sentinel as intelligence that can be used.
 
-![azure_sentinel](../../assets/product_azure_sentinel.png)
+![azure_sentinel](./images/product_azure_sentinel.png)
