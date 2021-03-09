@@ -1,0 +1,383 @@
+{
+  "schema_version": 3,
+  "name": "Duo Security",
+  "description": "## Overview\n\nExample Duo Security actions and workflows.\n\n## Setup\n\nDuo Security provides two primary API 'applications': the Auth API and the Admin API. Each of these applications contains a separate credential set. This story aims to abstract that away by identifying if a request needs to go to an '/admin/' API endpoint or an '/auth/' API endpoint. If you are only utilizing one of these API sets, you may only need to create one set of credentials.\n\n+ Create a Resource named 'duo_api_hostname' and enter your Duo Security tenant name (admin-d59a1f14.duosecurity.com)\n+ Create a Resource named 'duo_admin_integration_key' with the Duo application's integration key if you are using the Admin API\n+ Create a Resource named 'duo_auth_integration_key' with the Duo application's integration key if you are using the Auth API\n+ Create a Credential named 'duo_admin_secret_key' with the Duo application's secret key if you are using the Admin API\n+ Create a Credential named 'duo_auth_secret_key' with the Duo application's secret key if you are using the Auth API",
+  "guid": "478ce85d90ccecd0cd286d82f1a2d27d",
+  "exported_at": "2021-03-09T16:11:10Z",
+  "agents": [
+    {
+      "type": "Agents::SendToStoryAgent",
+      "name": "Send Alert Verification Push in Duo Security",
+      "disabled": false,
+      "guid": "5d6edac475504703fc503dfe896c4e29",
+      "options": {
+  "story": "{% story Duo Security %}",
+  "payload": {
+    "path": "/auth/v2/auth",
+    "method": "POST",
+    "params": {
+      "device": "auto",
+      "factor": "push",
+      "type": "Alert Verification",
+      "username": "{{ username }}"
+    }
+  },
+  "send_payload_as_body": "false"
+},
+      "schedule": null,
+      "keep_events_for": 0
+    },
+    {
+      "type": "Agents::HTTPRequestAgent",
+      "name": "Send API Request to Duo Security",
+      "disabled": false,
+      "guid": "d25e9c039b3f640997ee2105c68b48d3",
+      "options": {
+  "placeholders": {
+    "date": "{% assign date = 'now' | date: '%a, %d %b %Y %T %z' %}",
+    "method": "{% assign method = .receive_sts.method %}",
+    "host": "{% capture host %}{{ .RESOURCE.duo_api_hostname }}{% endcapture %}",
+    "path": "{% assign path = .receive_sts.path %}",
+    "params": "{% capture params %}{% if .receive_sts.params %}{% for key in .receive_sts.params %}{{ key[0] }}={{ .receive_sts.params | get: key[0] | replace: \" \", \"%20\" }}{% if forloop.last == false %}&{% endif %}{% endfor %}{% else %}{% endif%}{% endcapture %}{{ params }}",
+    "signature": "{% capture signature %}{{ date }}{%line_break%}{{ method }}{%line_break%}{{ host }}{%line_break%}{{ path }}{%line_break%}{{ params }}{% endcapture %}",
+    "duo-s-key": "{% capture duo-s-key %}{% if receive_sts.path contains '/admin/' %}{{.CREDENTIAL.duo_admin_secret_key }}{% else %}{{ .CREDENTIAL.duo_auth_secret_key }}{% endif %}{% endcapture %}"
+  },
+  "url": "https://{{ .RESOURCE.duo_api_hostname }}{{ .receive_sts.path }}",
+  "content_type": "{% if method == 'POST' %}form{% else %}json{% endif %}",
+  "method": "{{ method }}",
+  "payload": "{{ .receive_sts.params | as_object }}",
+  "headers": {
+    "Date": "{{ date }}"
+  },
+  "basic_auth": [
+    "{% if receive_sts.path contains '/admin/' %}{{.RESOURCE.duo_admin_integration_key }}{% else %}{{ .RESOURCE.duo_auth_integration_key }}{% endif %}",
+    "{{ signature | hmac_sha1: duo-s-key }}"
+  ]
+},
+      "schedule": null,
+      "keep_events_for": 0
+    },
+    {
+      "type": "Agents::SendToStoryAgent",
+      "name": "Get Groups in Duo Security",
+      "disabled": false,
+      "guid": "78ef656e65315d6de3cfd6d5d677989d",
+      "options": {
+  "story": "{% story Duo Security %}",
+  "payload": {
+    "path": "/admin/v1/groups",
+    "method": "GET"
+  },
+  "send_payload_as_body": "false"
+},
+      "schedule": null,
+      "keep_events_for": 0
+    },
+    {
+      "type": "Agents::SendToStoryAgent",
+      "name": "Get U2F Tokens in Duo Security",
+      "disabled": false,
+      "guid": "160a363dc6d8b72ff42a1f8bbb9a3804",
+      "options": {
+  "story": "{% story Duo Security %}",
+  "payload": {
+    "path": "/admin/v1/u2ftokens",
+    "method": "GET"
+  },
+  "send_payload_as_body": "false"
+},
+      "schedule": null,
+      "keep_events_for": 0
+    },
+    {
+      "type": "Agents::WebhookAgent",
+      "name": "Receive STS",
+      "disabled": false,
+      "guid": "6affec99c07c4f08721026ca9339ba60",
+      "options": {
+  "secret": "9532b594b834c192e8156ce7d44429ce",
+  "verbs": "get,post",
+  "include_headers": "false"
+},
+      "keep_events_for": 0
+    },
+    {
+      "type": "Agents::EventTransformationAgent",
+      "name": "Delay Event",
+      "disabled": false,
+      "guid": "351dc36c95e820d2b152445bd62e4e92",
+      "options": {
+  "mode": "delay",
+  "seconds": 10
+},
+      "schedule": null,
+      "keep_events_for": 0
+    },
+    {
+      "type": "Agents::SendToStoryAgent",
+      "name": "Get Admin Logs in Duo Security",
+      "disabled": false,
+      "guid": "df3b9c34733edb912c429027eaa6455d",
+      "options": {
+  "story": "{% story Duo Security %}",
+  "payload": {
+    "path": "/admin/v1/logs/administrator",
+    "method": "GET",
+    "params": {
+      "mintime": "{{ 'now' | date: '%s' | minus: 10000 }}"
+    }
+  },
+  "send_payload_as_body": "false"
+},
+      "schedule": null,
+      "keep_events_for": 0
+    },
+    {
+      "type": "Agents::SendToStoryAgent",
+      "name": "Get Phones in Duo Security",
+      "disabled": false,
+      "guid": "e8a570f4ef864abb31f57361a57e76e8",
+      "options": {
+  "story": "{% story Duo Security %}",
+  "payload": {
+    "path": "/admin/v1/phones",
+    "method": "GET"
+  },
+  "send_payload_as_body": "false"
+},
+      "schedule": null,
+      "keep_events_for": 0
+    },
+    {
+      "type": "Agents::SendToStoryAgent",
+      "name": "Get Authentication Logs in Duo Security",
+      "disabled": false,
+      "guid": "4663653d5a6d20da32e40fae8b56a87e",
+      "options": {
+  "story": "{% story Duo Security %}",
+  "payload": {
+    "path": "/admin/v2/logs/authentication",
+    "method": "GET",
+    "params": {
+      "maxtime": "{{ 'now' | date: '%s' }}000",
+      "mintime": "{{ 'now' | date: '%s' | minus: 10000 }}000"
+    }
+  },
+  "send_payload_as_body": "false"
+},
+      "schedule": null,
+      "keep_events_for": 0
+    },
+    {
+      "type": "Agents::SendToStoryAgent",
+      "name": "Get Endpoints in Duo Security",
+      "disabled": false,
+      "guid": "08e59c7916281b69ef497bae33483bb2",
+      "options": {
+  "story": "{% story Duo Security %}",
+  "payload": {
+    "path": "/admin/v1/endpoints",
+    "method": "GET"
+  },
+  "send_payload_as_body": "false"
+},
+      "schedule": null,
+      "keep_events_for": 0
+    },
+    {
+      "type": "Agents::SendToStoryAgent",
+      "name": "Get Hardware Tokens in Duo Security",
+      "disabled": false,
+      "guid": "a49a98dacfa717e20b202b21267f7889",
+      "options": {
+  "story": "{% story Duo Security %}",
+  "payload": {
+    "path": "/admin/v1/tokens",
+    "method": "GET"
+  },
+  "send_payload_as_body": "false"
+},
+      "schedule": null,
+      "keep_events_for": 0
+    },
+    {
+      "type": "Agents::SendToStoryAgent",
+      "name": "Send Alert Verification Push Async in Duo Security",
+      "disabled": false,
+      "guid": "93af31dc25ead632259bff67db7513aa",
+      "options": {
+  "story": "{% story Duo %}",
+  "payload": {
+    "path": "/auth/v2/auth",
+    "method": "POST",
+    "params": {
+      "async": "1",
+      "device": "auto",
+      "factor": "push",
+      "type": "Alert Verification",
+      "username": "{{ username }}"
+    }
+  },
+  "send_payload_as_body": "false"
+},
+      "schedule": null,
+      "keep_events_for": 0
+    },
+    {
+      "type": "Agents::SendToStoryAgent",
+      "name": "Get Alert Verification Push Status in Duo Security",
+      "disabled": false,
+      "guid": "c08718a404c6f1dc52c1f91807546f13",
+      "options": {
+  "story": "{% story Duo %}",
+  "payload": {
+    "path": "/auth/v2/auth_status",
+    "method": "GET",
+    "params": {
+      "txid": "{{ .send_alert_verification_push_async_in_duo_security.result.response.txid }}"
+    }
+  },
+  "send_payload_as_body": "false"
+},
+      "schedule": null,
+      "keep_events_for": 0
+    },
+    {
+      "type": "Agents::SendToStoryAgent",
+      "name": "Get Users in Duo Security",
+      "disabled": false,
+      "guid": "44593058587003c14b7eaad6c418039f",
+      "options": {
+  "story": "{% story Duo Security %}",
+  "payload": {
+    "path": "/admin/v1/users",
+    "method": "GET"
+  },
+  "send_payload_as_body": "false"
+},
+      "schedule": null,
+      "keep_events_for": 0
+    },
+    {
+      "type": "Agents::EventTransformationAgent",
+      "name": "Exit",
+      "disabled": false,
+      "guid": "473f6f26be25d2277f2ff7ec472b9364",
+      "options": {
+  "mode": "message_only",
+  "payload": {
+    "result": "{{ .send_api_request_to_duo_security.body | as_object }}"
+  }
+},
+      "schedule": null,
+      "keep_events_for": 0
+    },
+    {
+      "type": "Agents::TriggerAgent",
+      "name": "If Waiting",
+      "disabled": false,
+      "guid": "33a5357da712878c70db8f7d26b9c6d2",
+      "options": {
+  "rules": [
+    {
+      "type": "regex",
+      "value": "waiting",
+      "path": "{{ .get_alert_verification_push_status_in_duo_security.result.response.result }}"
+    }
+  ]
+},
+      "keep_events_for": 0
+    },
+    {
+      "type": "Agents::TriggerAgent",
+      "name": "If Allow",
+      "disabled": false,
+      "guid": "d0af2707fdf1e4624f90d74b855917c6",
+      "options": {
+  "rules": [
+    {
+      "type": "regex",
+      "value": "allow",
+      "path": "{{ .get_alert_verification_push_status_in_duo_security.result.response.result }}"
+    }
+  ]
+},
+      "keep_events_for": 0
+    },
+    {
+      "type": "Agents::TriggerAgent",
+      "name": "If Deny",
+      "disabled": false,
+      "guid": "60aa4542a2ee3f0857017d8cdcb86d8e",
+      "options": {
+  "rules": [
+    {
+      "type": "regex",
+      "value": "deny",
+      "path": "{{ .get_alert_verification_push_status_in_duo_security.result.response.result }}"
+    }
+  ]
+},
+      "keep_events_for": 0
+    }
+  ],
+  "diagram_notes": [
+    {
+      "content": "Duo Send to Story Actions\n\nThese Send to Story actions help with formatting Duo requests correctly.\n\n*Notice*: The param option ordering is sensitive and should be in alphabetical order to have the correct request signature that aligns with the request payload.",
+      "position": [
+        390.0,
+        -210.0
+      ]
+    }
+  ],
+  "links": [
+    {
+      "source": 1,
+      "receiver": 14
+    },
+    {
+      "source": 4,
+      "receiver": 1
+    },
+    {
+      "source": 5,
+      "receiver": 12
+    },
+    {
+      "source": 11,
+      "receiver": 5
+    },
+    {
+      "source": 12,
+      "receiver": 16
+    },
+    {
+      "source": 12,
+      "receiver": 17
+    },
+    {
+      "source": 12,
+      "receiver": 15
+    },
+    {
+      "source": 15,
+      "receiver": 5
+    }
+  ],
+  "diagram_layout": "{\"5d6edac475504703fc503dfe896c4e29\":[150.0,390.0],\"d25e9c039b3f640997ee2105c68b48d3\":[390.0,90.0],\"78ef656e65315d6de3cfd6d5d677989d\":[150.0,240.0],\"160a363dc6d8b72ff42a1f8bbb9a3804\":[150.0,-135.0],\"6affec99c07c4f08721026ca9339ba60\":[390.0,0.0],\"351dc36c95e820d2b152445bd62e4e92\":[750.0,105.0],\"df3b9c34733edb912c429027eaa6455d\":[150.0,165.0],\"e8a570f4ef864abb31f57361a57e76e8\":[150.0,15.0],\"4663653d5a6d20da32e40fae8b56a87e\":[150.0,90.0],\"08e59c7916281b69ef497bae33483bb2\":[150.0,465.0],\"a49a98dacfa717e20b202b21267f7889\":[150.0,-60.0],\"93af31dc25ead632259bff67db7513aa\":[750.0,-15.0],\"c08718a404c6f1dc52c1f91807546f13\":[750.0,195.0],\"44593058587003c14b7eaad6c418039f\":[150.0,315.0],\"473f6f26be25d2277f2ff7ec472b9364\":[390.0,195.0],\"33a5357da712878c70db8f7d26b9c6d2\":[750.0,330.0],\"d0af2707fdf1e4624f90d74b855917c6\":[585.0,330.0],\"60aa4542a2ee3f0857017d8cdcb86d8e\":[930.0,330.0]}",
+  "send_to_story_enabled": true,
+  "entry_agent_guid": "6affec99c07c4f08721026ca9339ba60",
+  "exit_agent_guids": [
+    "473f6f26be25d2277f2ff7ec472b9364"
+  ],
+  "exit_agent_guid": "473f6f26be25d2277f2ff7ec472b9364",
+  "send_to_stories": [],
+  "form": {
+    "name": "New story for tuckner329@gmail.com Form",
+    "description": "",
+    "fields": [],
+    "visibility": "tenant",
+    "agent_guid": null,
+    "success_message": "Thank you for your submission"
+  }
+}
