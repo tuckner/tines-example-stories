@@ -1,3 +1,5 @@
+# Duo Security
+
 ## Overview
 
 Example Duo Security actions and workflows.
