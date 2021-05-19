@@ -120,7 +120,7 @@ resource "tines_agent" "check_scan_status_7" {
     agent_type = "Agents::HTTPRequestAgent"
     story_id = tines_story.loops_with_counters.id
     keep_events_for = 0
-    source_ids = []
+    source_ids = [tines_agent.delay_event_8.id]
     receiver_ids = [tines_agent.trigger_if_complete_0.id, tines_agent.trigger_if_in_queue_3.id, tines_agent.trigger_if_error_6.id]
     position = {
       x = 561.0
@@ -135,7 +135,7 @@ resource "tines_agent" "delay_event_8" {
     story_id = tines_story.loops_with_counters.id
     keep_events_for = 0
     source_ids = []
-    receiver_ids = [tines_agent.check_scan_status_7.id]
+    receiver_ids = []
     position = {
       x = 561.0
       y = 576.0
