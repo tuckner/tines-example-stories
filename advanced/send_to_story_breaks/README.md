@@ -11,3 +11,5 @@ The 'Continuance' flow receives the 'agent_id' and 'event_id' of the inital Send
 2. An Event Transform Action in message only mode and selected as an exit action in the Send to Story configuration.
 
 With this example, you can see how complex paths can arrive back to a single Send to Story action even with breaks in the event chains.
+
+![image](https://user-images.githubusercontent.com/8551704/118886344-6c960480-b8be-11eb-8983-860bdd8344ff.png)
