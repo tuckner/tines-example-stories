@@ -40,8 +40,9 @@ resource "tines_global_resource" "sqs_queue" {
 
 resource "tines_credential" "aws_key" {
     name = "aws_key"
-    mode = "TEXT"
-    value = "replaceme"
+    mode = "AWS"
+    aws_access_key = "replaceme"
+    aws_secret_key = "replaceme"
     team_id = var.team_id
 }
 
